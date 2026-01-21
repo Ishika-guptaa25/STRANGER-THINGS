@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stranger Things - Enter The Upside Down</title>
+    <style>
+        /* Global Styles & Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Glitch Overlay Effect */
+        .glitch-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 0, 0, 0.03);
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.05s;
+        }
+
+        /* Cinematic Container */
+        .scene {
+            position: relative;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(180deg, #000 0%, #0a0000 50%, #000 100%);
+        }
+
+        /* Fog Effect */
+        .fog {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 0, 0, 0.15) 0%, transparent 70%);
+            animation: fogMove 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes fogMove {
+            0%, 100% { transform: translate(-10%, -10%) scale(1); }
+            50% { transform: translate(10%, 10%) scale(1.1); }
+        }
+
+        /* Ambient Particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(220, 20, 20, 0.4);
+            border-radius: 50%;
+            animation: float 15s infinite;
+            box-shadow: 0 0 20px rgba(220, 20, 20, 0.6);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        /* Hero Title */
+        .hero-title {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            transform: translateZ(50px);
+        }
+
+        .hero-title h1 {
+            font-size: clamp(3rem, 12vw, 8rem);
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            color: #ff0000;
+            text-shadow:
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 40px #ff0000,
+                0 0 80px #ff0000,
+                0 0 120px #8b0000;
+            animation: flicker 3s infinite alternate;
+            margin-bottom: 1rem;
+        }
+
+        /* Letter-by-letter flickering */
+        .hero-title h1 span {
+            display: inline-block;
+            animation: randomFlicker 4s infinite;
+        }
+
+        .hero-title h1 span:nth-child(odd) { animation-delay: 0.1s; }
+        .hero-title h1 span:nth-child(even) { animation-delay: 0.3s; }
+
+        @keyframes randomFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+            52% { opacity: 0.3; }
+            54% { opacity: 0.95; }
+        }
+
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                text-shadow:
+                    0 0 10px #ff0000,
+                    0 0 20px #ff0000,
+                    0 0 40px #ff0000,
+                    0 0 80px #ff0000,
+                    0 0 120px #8b0000;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.6;
+            }
+        }
+
+        .hero-title p {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: #999;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeIn 2s ease-in 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator::before {
+            content: '';
+            display: block;
+            width: 2px;
+            height: 50px;
+            background: linear-gradient(to bottom, #ff0000, transparent);
+            margin: 0 auto 10px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Section Styles */
+        section {
+            position: relative;
+            min-height: 100vh;
+            padding: 100px 20px;
+            overflow: hidden;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: #ff0000;
+            text-shadow: 0 0 20px #ff0000, 0 0 40px #8b0000;
+            margin-bottom: 80px;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Characters Section */
+        .characters {
+            background: linear-gradient(180deg, #000 0%, #0d0000 50%, #000 100%);
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .character-card {
+            position: relative;
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(50px) rotateX(10deg);
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 0, 0, 0.1);
+        }
+
+        .character-card.visible {
+            animation: cardReveal 0.8s ease forwards;
+        }
+
+        @keyframes cardReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
+            opacity: 0.7;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+
+        .character-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.9);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 2;
+        }
+
+        .character-card:hover {
+            transform: translateY(-20px) rotateX(5deg) rotateY(5deg) scale(1.05);
+            box-shadow:
+                0 30px 60px rgba(255, 0, 0, 0.4),
+                0 0 100px rgba(255, 0, 0, 0.3),
+                inset 0 0 100px rgba(255, 0, 0, 0.1);
+        }
+
+        .character-card:hover::before {
+            opacity: 0.3;
+        }
+
+        .character-card:hover::after {
+            opacity: 1;
+        }
+
+        .character-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease;
+            filter: grayscale(40%) contrast(120%);
+        }
+
+        .character-card:hover .character-bg {
+            transform: scale(1.1);
+            filter: grayscale(0%) contrast(110%);
+        }
+
+        .character-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            z-index: 2;
+            transform: translateZ(50px);
+        }
+
+        .character-info h3 {
+            font-size: 1.8rem;
+            color: #fff;
+            text-shadow: 0 0 10px #ff0000, 2px 2px 4px rgba(0,0,0,0.8);
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .character-info p {
+            font-size: 0.95rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        /* Upside Down Section */
+        .upside-down {
+            background: #000;
+            position: relative;
+        }
+
+        .upside-down::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(139, 0, 0, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(139, 0, 0, 0.2) 0%, transparent 50%);
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Flashlight Overlay for Upside Down */
+        .flashlight-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, transparent 150px, rgba(0, 0, 0, 0.95) 300px);
+            pointer-events: none;
+            z-index: 5;
+            transition: background 0.1s ease;
+        }
+
+        .upside-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .upside-content p {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            line-height: 2;
+            color: #aaa;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease;
+        }
+
+        .upside-content p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .vines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background-image:
+                repeating-linear-gradient(90deg, transparent, transparent 100px, #ff0000 100px, #ff0000 101px),
+                repeating-linear-gradient(0deg, transparent, transparent 100px, #ff0000 100px, #ff0000 101px);
+            animation: vineGrow 20s linear infinite;
+        }
+
+        @keyframes vineGrow {
+            from { background-position: 0 0; }
+            to { background-position: 100px 100px; }
+        }
+
+        /* Timeline Section */
+        .timeline {
+            background: linear-gradient(180deg, #000 0%, #0a0000 100%);
+            padding: 120px 20px;
+        }
+
+        .timeline-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #ff0000, transparent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 100px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s ease;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+            transform: translateX(50px);
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 30px;
+            background: rgba(139, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .timeline-content:hover {
+            background: rgba(139, 0, 0, 0.2);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .timeline-content h3 {
+            font-size: 2rem;
+            color: #ff0000;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        .timeline-content p {
+            color: #ccc;
+            line-height: 1.8;
+        }
+
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            animation: dotPulse 2s infinite;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
+            50% { box-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000; }
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 60px 20px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        footer p {
+            color: #666;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+        }
+
+        .footer-glow {
+            display: inline-block;
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+            margin: 0 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title h1 {
+                letter-spacing: 0.1em;
+            }
+
+            .character-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .timeline-line {
+                left: 30px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-left: 60px;
+            }
+
+            .timeline-dot {
+                left: 30px;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+        }
+
+        /* Custom Cursor Effect */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s ease;
+            z-index: 9999;
+            opacity: 0;
+        }
+
+        /* Custom Flashlight Cursor */
+        .cursor-flashlight {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255,0,0,0.05) 30%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Audio Control Button */
+        .audio-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .audio-toggle:hover {
+            background: rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Vecna's Clock Section */
+        .vecna-clock {
+            background: linear-gradient(180deg, #000 0%, #0d0000 50%, #000 100%);
+            padding: 120px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vecna-clock::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(139, 0, 0, 0.3) 0%, transparent 70%);
+            animation: clockPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes clockPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .clock-container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .clock-frame {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 60px auto;
+            border: 4px solid #8b0000;
+            border-radius: 50%;
+            box-shadow:
+                0 0 40px rgba(255, 0, 0, 0.5),
+                inset 0 0 40px rgba(139, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(20, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%);
+            animation: clockGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes clockGlow {
+            0%, 100% {
+                box-shadow:
+                    0 0 40px rgba(255, 0, 0, 0.5),
+                    inset 0 0 40px rgba(139, 0, 0, 0.3);
+            }
+            50% {
+                box-shadow:
+                    0 0 60px rgba(255, 0, 0, 0.8),
+                    inset 0 0 60px rgba(139, 0, 0, 0.5);
+            }
+        }
+
+        .clock-numbers {
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+        }
+
+        .clock-number {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+            font-weight: bold;
+            transform-origin: center;
+        }
+
+        .countdown-display {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .countdown-block {
+            background: rgba(139, 0, 0, 0.2);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .countdown-block:hover {
+            background: rgba(139, 0, 0, 0.4);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.6);
+            transform: scale(1.05);
+        }
+
+        .countdown-number {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: #ff0000;
+            text-shadow: 0 0 20px #ff0000, 0 0 40px #8b0000;
+            font-weight: 900;
+            display: block;
+            animation: numberPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes numberPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .countdown-label {
+            font-size: 0.9rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .doomsday-message {
+            margin-top: 40px;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: #ccc;
+            line-height: 1.8;
+        }
+
+        .warning-text {
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+            font-weight: bold;
+            animation: warningBlink 2s ease-in-out infinite;
+        }
+
+        @keyframes warningBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .clock-hand {
+            position: absolute;
+            background: #ff0000;
+            transform-origin: bottom center;
+            box-shadow: 0 0 10px #ff0000;
+            border-radius: 2px;
+        }
+
+        .hour-hand {
+            width: 6px;
+            height: 80px;
+            bottom: 50%;
+            left: calc(50% - 3px);
+            animation: tickHour 60s linear infinite;
+        }
+
+        .minute-hand {
+            width: 4px;
+            height: 110px;
+            bottom: 50%;
+            left: calc(50% - 2px);
+            animation: tickMinute 5s linear infinite;
+        }
+
+        @keyframes tickHour {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes tickMinute {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .clock-center {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff0000;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px #ff0000;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="glitch-overlay" id="glitch"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="cursor-flashlight" id="flashlight"></div>
+    <button class="audio-toggle" id="audioBtn">SOUND: OFF</button>
+
+    <section class="hero scene">
+        <div class="fog"></div>
+        <div class="particles" id="particles"></div>
+
+        <div class="hero-title">
+            <h1>STRANGER THINGS</h1>
+            <p>Enter The Upside Down</p>
+        </div>
+
+        <div class="scroll-indicator"></div>
+    </section>
+
+    <section class="characters scene">
+        <h2 class="section-title">THE PARTY</h2>
+
+        <div class="character-grid">
+            <div class="character-card" data-tilt>
+                <div class="character-bg" style="background-image: url('images/eleven.jpg');"></div>
+                <div class="character-info">
+                    <h3>ELEVEN</h3>
+                    <p>A girl with psychokinetic abilities who escaped from Hawkins Laboratory.</p>
+                </div>
+            </div>
+
+            <div class="character-card" data-tilt>
+                <div class="character-bg" style="background-image: url('images/mike.jpg');"></div>
+                <div class="character-info">
+                    <h3>MIKE</h3>
+                    <p>The heart of the group who leads the party through every mystery.</p>
+                </div>
+            </div>
+
+            <div class="character-card" data-tilt>
+                <div class="character-bg" style="background-image: url('images/dustin.jpg');"></div>
+                <div class="character-info">
+                    <h3>DUSTIN</h3>
+                    <p>The comic relief with a brilliant mind for science and strategy.</p>
+                </div>
+            </div>
+
+            <div class="character-card" data-tilt>
+                <div class="character-bg" style="background-image: url('images/lucas.jpg');"></div>
+                <div class="character-info">
+                    <h3>LUCAS</h3>
+                    <p>The pragmatic voice of reason who keeps the group grounded.</p>
+                </div>
+            </div>
+
+            <div class="character-card" data-tilt>
+                <div class="character-bg" style="background-image: url('images/max.jpg');"></div>
+                <div class="character-info">
+                    <h3>MAX</h3>
+                    <p>The fierce newcomer who proves herself as an essential member.</p>
+                </div>
+            </div>
+
+            <div class="character-card" data-tilt>
+                <div class="character-bg" style="background-image: url('images/will.jpg');"></div>
+                <div class="character-info">
+                    <h3>WILL</h3>
+                    <p>The boy who vanished and opened the door to the Upside Down.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="upside-down scene">
+        <div class="vines"></div>
+        <div class="flashlight-overlay" id="flashlightOverlay"></div>
+
+        <div class="upside-content">
+            <h2 class="section-title">THE UPSIDE DOWN</h2>
+            <p>A dark parallel dimension existing alongside the human world. It is a place of decay and death, a plane out of phase, a place of monsters. It is right next to you and you don't even see it.</p>
+            <p>The Upside Down is cold and dark, an echo of our world covered in vines and spores. Time moves differently there, and the Mind Flayer watches from the shadows, waiting for the moment to strike.</p>
+        </div>
+    </section>
+
+    <section class="vecna-clock scene">
+        <div class="clock-container">
+            <h2 class="section-title">VECNA'S CLOCK</h2>
+
+            <div class="clock-frame">
+                <div class="clock-numbers" id="clockNumbers"></div>
+                <div class="clock-hand hour-hand"></div>
+                <div class="clock-hand minute-hand"></div>
+                <div class="clock-center"></div>
+            </div>
+
+            <div class="countdown-display">
+                <div class="countdown-grid">
+                    <div class="countdown-block">
+                        <span class="countdown-number" id="days">00</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-block">
+                        <span class="countdown-number" id="hours">00</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                    <div class="countdown-block">
+                        <span class="countdown-number" id="minutes">00</span>
+                        <span class="countdown-label">Minutes</span>
+                    </div>
+                    <div class="countdown-block">
+                        <span class="countdown-number" id="seconds">00</span>
+                        <span class="countdown-label">Seconds</span>
+                    </div>
+                </div>
+
+                <div class="doomsday-message">
+                    <p>Time is running out. <span class="warning-text">The gates are opening.</span></p>
+                    <p>When the clock strikes zero, <span class="warning-text">Vecna's curse will be complete.</span></p>
+                    <p id="doomsdayDate"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="timeline scene">
+        <h2 class="section-title">THE STORY</h2>
+
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>SEASON 1</h3>
+                    <p>When Will Byers disappears in the small town of Hawkins, his friends embark on a dangerous quest to find him. They discover Eleven, a mysterious girl with supernatural powers, and uncover a secret government experiment that has torn open a gateway to another dimension.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>SEASON 2</h3>
+                    <p>A year after Will's return, the horror deepens. The Mind Flayer, a powerful entity from the Upside Down, begins to possess Will and spread its influence across Hawkins. The party must unite to close the gate before the darkness consumes everything.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>SEASON 3</h3>
+                    <p>Summer brings new dangers as a secret Soviet facility beneath the Starcourt Mall attempts to reopen the gate. The Mind Flayer returns with a vengeance, building an army from the possessed residents of Hawkins in a terrifying display of power.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <h3>SEASON 4</h3>
+                    <p>Six months after the Battle of Starcourt, a new and horrifying supernatural threat surfaces in Hawkins. As Eleven struggles without her powers, the friends are separated and must fight their greatest enemy yet: Vecna, the mastermind behind it all.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>
+            A <span class="footer-glow">NETFLIX</span> Original Series
+            <br><br>
+            Created by <span class="footer-glow">The Duffer Brothers</span>
+            <br><br>
+            &copy; 2026 Stranger Things Fan Site
+        </p>
+    </footer>
+
+    <script>
+        // === UPDATED SYNTH MUSIC SYSTEM ===
+        let audioCtx;
+        let isAudioPlaying = false;
+        let melodyInterval;
+
+        const audioBtn = document.getElementById('audioBtn');
+
+        audioBtn.addEventListener('click', () => {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (!isAudioPlaying) {
+                audioCtx.resume();
+                startSynthMusic();
+                audioBtn.textContent = 'SOUND: ON';
+                audioBtn.style.borderColor = '#00ff00';
+                audioBtn.style.color = '#00ff00';
+            } else {
+                stopSynthMusic();
+                audioBtn.textContent = 'SOUND: OFF';
+                audioBtn.style.borderColor = '#ff0000';
+                audioBtn.style.color = '#ff0000';
+            }
+            isAudioPlaying = !isAudioPlaying;
+        });
+
+        function createOsc(freq, type, gainValue, startTime, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, startTime);
+
+            gain.gain.setValueAtTime(gainValue, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function startSynthMusic() {
+            // Pulse pattern: C2, E2, G2, B2, C3, B2, G2, E2 (The iconic arpeggio feel)
+            const notes = [65.41, 82.41, 98.00, 123.47, 130.81, 123.47, 98.00, 82.41];
+            let step = 0;
+
+            // Background Drone
+            const drone = audioCtx.createOscillator();
+            const droneGain = audioCtx.createGain();
+            drone.type = 'sawtooth';
+            drone.frequency.setValueAtTime(32.70, audioCtx.currentTime); // Low C1
+            droneGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            drone.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            drone.start();
+            window.activeDrone = drone;
+
+            melodyInterval = setInterval(() => {
+                const now = audioCtx.currentTime;
+                // Bass Pluck
+                createOsc(notes[step % notes.length], 'square', 0.05, now, 0.4);
+                // Subtle high shimmer
+                if(step % 4 === 0) {
+                    createOsc(notes[step % notes.length] * 4, 'sine', 0.01, now, 1.0);
+                }
+                step++;
+            }, 200); // Fast pulse
+        }
+
+        function stopSynthMusic() {
+            clearInterval(melodyInterval);
+            if (window.activeDrone) {
+                window.activeDrone.stop();
+            }
+            if (audioCtx) {
+                audioCtx.suspend();
+            }
+        }
+
+        // === TITLE LETTER ANIMATION ===
+        const title = document.querySelector('.hero-title h1');
+        if (title) {
+            const text = title.textContent;
+            title.innerHTML = text.split('').map(char =>
+                char === ' ' ? ' ' : `<span>${char}</span>`
+            ).join('');
+        }
+
+        // === PARTICLE GENERATION ===
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // === SCROLL ANIMATION OBSERVER ===
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section-title, .character-card, .upside-content p, .timeline-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // === PARALLAX SCROLL EFFECTS ===
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrolled = window.pageYOffset;
+
+                    const hero = document.querySelector('.hero');
+                    if (hero) {
+                        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+                    }
+
+                    document.querySelectorAll('.fog').forEach(fog => {
+                        fog.style.transform = `translate(${scrolled * 0.1}px, ${scrolled * 0.1}px)`;
+                    });
+
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // === MOUSE MOVE EFFECTS ===
+        const cursorGlow = document.getElementById('cursorGlow');
+        const flashlight = document.getElementById('flashlight');
+        const flashlightOverlay = document.getElementById('flashlightOverlay');
+        const glitch = document.getElementById('glitch');
+
+        let mouseX = 0, mouseY = 0;
+        let currentX = 0, currentY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            cursorGlow.style.opacity = '1';
+            flashlight.style.opacity = '1';
+
+            const scenes = document.querySelectorAll('.scene');
+            scenes.forEach(scene => {
+                const rect = scene.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    const centerX = window.innerWidth / 2;
+                    const centerY = window.innerHeight / 2;
+                    const deltaX = (e.clientX - centerX) / centerX;
+                    const deltaY = (e.clientY - centerY) / centerY;
+
+                    scene.style.transform = `rotateY(${deltaX * 2}deg) rotateX(${-deltaY * 2}deg)`;
+                }
+            });
+
+            if (flashlightOverlay) {
+                const upsideDownSection = document.querySelector('.upside-down');
+                const rect = upsideDownSection.getBoundingClientRect();
+                const relativeY = e.clientY - rect.top;
+                flashlightOverlay.style.background = `radial-gradient(circle at ${e.clientX}px ${relativeY}px, transparent 150px, rgba(0, 0, 0, 0.95) 300px)`;
+            }
+
+            if (Math.random() > 0.985) {
+                triggerGlitch();
+            }
+        });
+
+        function triggerGlitch() {
+            glitch.style.opacity = '1';
+            setTimeout(() => glitch.style.opacity = '0', 50);
+        }
+
+        function animateCursor() {
+            currentX += (mouseX - currentX) * 0.1;
+            currentY += (mouseY - currentY) * 0.1;
+            cursorGlow.style.left = currentX + 'px';
+            cursorGlow.style.top = currentY + 'px';
+            flashlight.style.left = currentX + 'px';
+            flashlight.style.top = currentY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // === CHARACTER CARD 3D TILT ===
+        document.querySelectorAll('[data-tilt]').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+
+                card.style.transform = `translateY(-20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+
+        // === SMOOTH SCROLL ===
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // === INITIALIZE ===
+        createParticles();
+        initializeVecnaClock();
+        startCountdown();
+
+        if (window.innerWidth < 768) {
+            document.querySelectorAll('.particle').forEach((p, i) => {
+                if (i > 15) p.remove();
+            });
+        }
+
+        document.addEventListener('mouseleave', () => {
+            cursorGlow.style.opacity = '0';
+            flashlight.style.opacity = '0';
+        });
+
+        // === VECNA'S CLOCK COUNTDOWN ===
+        const DOOMSDAY = new Date('2026-07-04T00:00:00').getTime();
+
+        function initializeVecnaClock() {
+            const clockNumbers = document.getElementById('clockNumbers');
+            const radius = 160;
+
+            for (let i = 1; i <= 12; i++) {
+                const angle = (i * 30 - 90) * (Math.PI / 180);
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+
+                const number = document.createElement('div');
+                number.className = 'clock-number';
+                number.textContent = i;
+                number.style.left = `calc(50% + ${x}px)`;
+                number.style.top = `calc(50% + ${y}px)`;
+                number.style.transform = 'translate(-50%, -50%)';
+
+                clockNumbers.appendChild(number);
+            }
+
+            const doomsdayDate = document.getElementById('doomsdayDate');
+            const dateObj = new Date(DOOMSDAY);
+            doomsdayDate.innerHTML = `<span class="warning-text">Doomsday: ${dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })}</span>`;
+        }
+
+        function startCountdown() {
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = DOOMSDAY - now;
+
+            if (distance < 0) {
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+
+                const message = document.querySelector('.doomsday-message');
+                message.innerHTML = '<p class="warning-text" style="font-size: 2rem;">THE GATES HAVE OPENED</p><p class="warning-text">Vecna has arrived...</p>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
+            if (days === 0) {
+                const countdownBlocks = document.querySelectorAll('.countdown-block');
+                countdownBlocks.forEach(block => {
+                    block.style.borderColor = '#ff0000';
+                    block.style.animation = 'urgentPulse 0.5s ease-in-out infinite';
+                });
+            }
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes urgentPulse {
+                0%, 100% {
+                    transform: scale(1);
+                    box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+                }
+                50% {
+                    transform: scale(1.1);
+                    box-shadow: 0 0 60px rgba(255, 0, 0, 0.8);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
