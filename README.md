@@ -1,6 +1,6 @@
 # Stranger Things - Cinematic Website
 
-A cinematic frontend website inspired by the Stranger Things universe, built with pure HTML, CSS, and vanilla JavaScript.
+A cinematic frontend website inspired by the Stranger Things universe, built with pure HTML, CSS, and vanilla JavaScript
 
 ## DEMO
 https://stranger-things-ochre.vercel.app/
